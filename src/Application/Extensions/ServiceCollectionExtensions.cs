@@ -1,4 +1,5 @@
 using Application.Behaviors;
+using Application.Services;
 using FluentValidation;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
@@ -16,6 +17,8 @@ public static class ServiceCollectionExtensions
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>));
 
         services.AddValidatorsFromAssembly(typeof(ServiceCollectionExtensions).Assembly);
+
+        services.AddScoped<IJwtService, JwtService>();
 
         return services;
     }
