@@ -10,7 +10,7 @@ public class Token: BaseEntity
     
     public List<Scope> Scopes { get; set; }
     
-    public App App;
+    public App App {get; set;}
     
     public bool IsActive { get; set; } = true;
 }

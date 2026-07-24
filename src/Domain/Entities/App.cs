@@ -1,8 +1,8 @@
 namespace Domain.Entities;
 
-public class App
+public class App: BaseEntity
 {
-    public Guid Id { get; set; }
+    public Guid Gid { get; set; }
     public string Name { get; set; }
     public string Description { get; set; }
 }
