@@ -10,9 +10,10 @@ namespace Application.Services;
 public record CreateJwtTokenRequest(
     string Subject,
     Guid AppId,
+    string Audience,
+    int ExpiresInMinutes,
     IReadOnlyList<string> Scopes,
-    IReadOnlyDictionary<string, string>? Claims = null,
-    int? ExpiresInMinutes = null);
+    IReadOnlyDictionary<string, string>? Claims = null);
 
 public interface IJwtService
 {
@@ -28,6 +29,11 @@ public class JwtService(IOptions<JwtOptions> jwtOptions) : IJwtService
         if (string.IsNullOrWhiteSpace(request.Subject))
         {
             throw new ArgumentException("Subject is required.", nameof(request));
+        }
+
+        if (string.IsNullOrWhiteSpace(request.Audience))
+        {
+            throw new ArgumentException("Audience is required.", nameof(request));
         }
 
         var claims = new List<Claim>
@@ -47,15 +53,14 @@ public class JwtService(IOptions<JwtOptions> jwtOptions) : IJwtService
             claims.AddRange(request.Claims.Select(c => new Claim(c.Key, c.Value)));
         }
 
-        var expiresInMinutes = request.ExpiresInMinutes ?? _options.AccessTokenMinutes;
         var signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_options.Key));
         var credentials = new SigningCredentials(signingKey, SecurityAlgorithms.HmacSha256);
 
         var token = new JwtSecurityToken(
             issuer: _options.Issuer,
-            audience: _options.Audience,
+            audience: request.Audience,
             claims: claims,
-            expires: DateTime.UtcNow.AddMinutes(expiresInMinutes),
+            expires: DateTime.UtcNow.AddMinutes(request.ExpiresInMinutes),
             signingCredentials: credentials);
 
         return new JwtSecurityTokenHandler().WriteToken(token);
